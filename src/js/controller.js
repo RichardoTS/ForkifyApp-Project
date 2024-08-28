@@ -3,6 +3,7 @@ import recipeView from "./views/recipeView.js";
 import searchView from "./views/searchView.js";
 import resultsView from "./views/resultsView.js";
 import paginationView from "./views/paginationView.js";
+import bookmarksView from "./views/bookmarksView.js";
 
 import { async } from "regenerator-runtime";
 import "core-js/stable";
@@ -22,10 +23,13 @@ const controlRecipies = async function () {
     // 0. Update results view to mark selected search result
     resultsView.update(model.getSearchResultsPage());
 
-    // 1. Loading Recipe
+    // 1. Updating bookmars view
+    bookmarksView.update(model.state.bookmarks);
+
+    // 2. Loading Recipe
     await model.loadRecipe(id);
 
-    // 2. Rendering Recipe
+    // 3. Rendering Recipe
     recipeView.render(model.state.recipe);
   } catch (err) {
     recipeView.renderError();
@@ -73,14 +77,23 @@ const controlServings = function (newServings) {
 };
 
 const controlAddBookmark = function () {
+  // 1. Add/remove bookmark
   if (!model.state.recipe.bookmarked) model.addBookmark(model.state.recipe);
   else model.removeBookmark(model.state.recipe.id);
 
-  console.log(model.state.recipe);
+  // 2. Update recipe view
   recipeView.update(model.state.recipe);
+
+  // 3. Render bookmars
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const controlBookmarks = function () {
+  bookmarksView.render(model.state.bookmarks);
 };
 
 const init = function () {
+  bookmarksView.addHandlerRendeR(controlBookmarks);
   recipeView.addHandlerRender(controlRecipies);
   recipeView.addHandlerUpdateServigs(controlServings);
   recipeView.addHandlerAddBookmar(controlAddBookmark);
